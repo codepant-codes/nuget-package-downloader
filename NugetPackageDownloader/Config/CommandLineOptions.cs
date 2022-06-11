@@ -3,7 +3,7 @@ using NugetPackageDownloader.Enums;
 
 namespace NugetPackageDownloader.Config
 {
-    class Options
+    internal class CommandLineOptions
     {
         [Option(shortName: 't', longName: "type", Default = SourceType.GitHub, Required = true, HelpText = $"Type of Source GitHub or Teamcity")]
         public SourceType SourceType { get; set; }
