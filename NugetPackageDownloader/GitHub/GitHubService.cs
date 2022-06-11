@@ -71,7 +71,6 @@ namespace NugetPackageDownloader.GitHub
             List<PackageInfoResponse> packageInfoResponses = new List<PackageInfoResponse>();
             for (int i = 0; i < numberOfBatches; i++)
             {
-                if (i == 5) { break; }
                 List<Task<PackageInfoResponse>> packageInformationTaskBatch = new List<Task<PackageInfoResponse>>();
                 this._logger.LogInformation($"Batch {i + 1} / {numberOfBatches} for Getting Packages Information");
                 var batch = packageVersionsToFetch.Skip(i * batchSize).Take(batchSize).ToList();
