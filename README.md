@@ -18,6 +18,14 @@
 1. Windows 7/8/10/11 or any latest
 
 
+## Usage
+
+### Command Line Parameters
+
+`NugetPackageDownloader.exe -t GitHub -s https://nuget.pkg.github.com/microsoft/index.json -d "C:\temp" -u YOUR_USER_NAME -p  YOUR_GITHUB_PAT`
+
+
+
 ## 💪 Project created & Maintained by
 
 [Pishang Ujeniya](https://github.com/pishangujeniya)
