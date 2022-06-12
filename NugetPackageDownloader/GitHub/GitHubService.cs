@@ -115,6 +115,7 @@ namespace NugetPackageDownloader.GitHub
         private async Task<ListAllPackagesResponse> ListAllPackages(string queryUrl)
         {
             this._logger.LogInformation($"Querying Packages");
+            queryUrl += "?ignoreFilter=true&prerelease=true";
             var response = await this._restClient.GetAsync<ListAllPackagesResponse>(new RestRequest(queryUrl));
             this._logger.LogInformation($"Finished");
             return response ?? throw new Exception($"Something went wrong in getting {nameof(this.ListAllPackages)}");
