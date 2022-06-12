@@ -19,6 +19,7 @@ namespace NugetPackageDownloader.GitHub
         private readonly RestClient _restClient; // TODO: Remove RestSharp Usage
         private readonly AuthenticationHeaderValue _authenticationHeaderValue;
         private readonly ILogger<GitHubService> _logger;
+        private const int BatchSize = 5;
 
         public GitHubService(IOptionsSnapshot<GitHubConfiguration> optionsSnapshot, IHttpClientFactory clientFactory, ILogger<GitHubService> logger)
         {
@@ -65,15 +66,13 @@ namespace NugetPackageDownloader.GitHub
                 }
             }
 
-
-            var batchSize = 5;
-            int numberOfBatches = packageVersionsToFetch.Count / batchSize;
+            int numberOfBatchesForPackageInfo = packageVersionsToFetch.Count / BatchSize;
             List<PackageInfoResponse> packageInfoResponses = new List<PackageInfoResponse>();
-            for (int i = 0; i < numberOfBatches; i++)
+            for (int i = 0; i < numberOfBatchesForPackageInfo; i++)
             {
                 List<Task<PackageInfoResponse>> packageInformationTaskBatch = new List<Task<PackageInfoResponse>>();
-                this._logger.LogInformation($"Batch {i + 1} / {numberOfBatches} for Getting Packages Information");
-                var batch = packageVersionsToFetch.Skip(i * batchSize).Take(batchSize).ToList();
+                this._logger.LogInformation($"Batch {i + 1} / {numberOfBatchesForPackageInfo} for Getting Packages Information");
+                var batch = packageVersionsToFetch.Skip(i * BatchSize).Take(BatchSize).ToList();
                 for (var index = 0; index < batch.Count; index++)
                 {
                     var package = batch[index];
@@ -89,17 +88,22 @@ namespace NugetPackageDownloader.GitHub
 
 
             List<string> nupkgUrlList = (from pkg in packageInfoResponses orderby pkg.PackageContent select pkg.PackageContent).Distinct().ToList();
-
-            this._logger.LogInformation($"Downloading {nupkgUrlList.Count} Packages");
-            List<Task> downloadTasks = new List<Task>();
-            for (int i = 0; i < nupkgUrlList.Count; i++)
+            var numberOfBatchesForDownload = nupkgUrlList.Count / BatchSize;
+            this._logger.LogInformation($"Downloading {nupkgUrlList.Count} packages in {numberOfBatchesForDownload} batches");
+            for (int index = 0; index < numberOfBatchesForDownload; index++)
             {
-                var t = this.DownloadFile(nupkgUrlList[i], this._gitHubConfiguration.Destination);
-                downloadTasks.Add(t);
+                List<Task> downloadTasksList = new List<Task>();
+                this._logger.LogInformation($"Batch {index + 1} / {numberOfBatchesForDownload} for Downloading Packages");
+                var batch = nupkgUrlList.Skip(index * BatchSize).Take(BatchSize).ToList();
+                for (var j = 0; j < batch.Count; j++)
+                {
+                    var t = this.DownloadFile(batch[j], this._gitHubConfiguration.Destination);
+                    downloadTasksList.Add(t);
+                }
+                await Task.WhenAll(downloadTasksList);
             }
-
-            await Task.WhenAll(downloadTasks);
             this._logger.LogInformation("Finished Downloading");
+
             this._logger.LogInformation("Press Any Key to Exit");
             Console.ReadLine();
         }
@@ -156,16 +160,18 @@ namespace NugetPackageDownloader.GitHub
                     File.Delete(destinationPath);
                 }
                 this._logger.LogInformation($"Downloading {fileName}");
-                var httpClient = this._clientFactory.CreateClient();
-                httpClient.DefaultRequestHeaders.Authorization = _authenticationHeaderValue;
-                this._logger.LogInformation($"Downloading Started {fileName}");
-                var response = await httpClient.GetAsync(url);
-                this._logger.LogInformation($"Downloading Completed{fileName}");
-                using (var fs = new FileStream(destinationPath, FileMode.CreateNew))
+                using (var httpClient = this._clientFactory.CreateClient(nameof(GitHubService)))
                 {
-                    this._logger.LogInformation($"Saving {fileName}");
-                    await response.Content.CopyToAsync(fs);
-                    this._logger.LogInformation($"Saving Completed {fileName}");
+                    httpClient.DefaultRequestHeaders.Authorization = _authenticationHeaderValue;
+                    this._logger.LogInformation($"Downloading Started {fileName}");
+                    var response = await httpClient.GetAsync(url);
+                    this._logger.LogInformation($"Downloading Completed{fileName}");
+                    using (var fs = new FileStream(destinationPath, FileMode.CreateNew))
+                    {
+                        this._logger.LogInformation($"Saving {fileName}");
+                        await response.Content.CopyToAsync(fs);
+                        this._logger.LogInformation($"Saving Completed {fileName}");
+                    }
                 }
             }
             catch (Exception e)
