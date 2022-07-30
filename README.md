@@ -13,11 +13,6 @@
 - Teamcity
 - Others May be, _Try it out and make an issue to inform us._
 
-## ⚠ Requirements
-
-1. Windows 7/8/10/11 or any latest
-
-
 ## Usage
 
 ### Command Line Parameters
