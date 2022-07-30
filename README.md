@@ -3,15 +3,15 @@
 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fcodepant-codes.github.io%2Fnuget-package-downloader%2F)](https://codepant-codes.github.io/nuget-package-downloader/)
 [![GitHub issues](https://img.shields.io/github/issues/codepant-codes/nuget-package-downloader)](https://github.com/codepant-codes/nuget-package-downloader/issues)
-![GitHub closed issues](https://img.shields.io/github/issues-closed/codepant-codes/nuget-package-downloader)
 ![GitHub last commit](https://img.shields.io/github/last-commit/codepant-codes/nuget-package-downloader)
 ![GitHub license](https://img.shields.io/github/license/codepant-codes/nuget-package-downloader)
 
 ![Nuget Package Downloader](./Docs/Images/nuget-package-downloader-banner.jpg)
 
 ## 🤝 Sources Supported
-- GitHub
-- TeamCity *(Under development)*
+- Github
+- Teamcity
+- Others May be, _Try it out and make an issue to inform us._
 
 ## ⚠ Requirements
 
@@ -22,7 +22,8 @@
 
 ### Command Line Parameters
 
-`NugetPackageDownloader.exe -t GitHub -s https://nuget.pkg.github.com/microsoft/index.json -d "C:\temp" -u YOUR_USER_NAME -p  YOUR_GITHUB_PAT`
+- Github `NugetPackageDownloader.exe -t "Github" -s "https://nuget.pkg.github.com/microsoft/index.json" -d "C:\temp" -u "YOUR_USER_NAME" -p  "YOUR_GITHUB_PAT"`
+- Teamcity `NugetPackageDownloader.exe -t "Teamcity" -s "https://nuget.pkg.github.com/microsoft/index.json" -d "C:\temp" -u "YOUR_USER_NAME" -p  "YOUR_TEAMCITY_PASSWORD"`
 
 
 
